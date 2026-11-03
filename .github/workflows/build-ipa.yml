@@ -1,0 +1,24 @@
+name: build-ipa
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack kit if present
+        run: |
+          if [ -f HudApp_build_kit.zip ]; then unzip -q HudApp_build_kit.zip -d .; fi
+          ls -la
+          ls -la HudApp || true
+      - name: Build unsigned ipa
+        run: |
+          chmod +x HudApp/build.sh
+          bash HudApp/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HudOverlay-unsigned-ipa
+          path: HudApp/HudOverlay.ipa
+          if-no-files-found: error
